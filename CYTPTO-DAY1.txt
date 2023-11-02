@@ -1,0 +1,350 @@
+NAME:R.JAYARAGINI
+REG.NO:192110525
+SUB:CYPTOGRAPHY[CSA-5109]
+DAY-1
+1)Write a C program for Caesar cipher involves replacing each letter of the alphabet with the letter standing k places further down the alphabet, for k in the range 1 through 25.
+program:
+#include <stdio.h>
+#include <string.h>
+void decryptCaesarCipher(char message[], int key) {
+    int i;
+    for (i = 0; i < strlen(message); i++) {
+        if (message[i] >= 'a' && message[i] <= 'z') {
+            message[i] = (message[i] - 'a' - key + 26) % 26 + 'a';
+        } else if (message[i] >= 'A' && message[i] <= 'Z') {
+            message[i] = (message[i] - 'A' - key + 26) % 26 + 'A';
+        }
+    }
+}
+
+int main() {
+    char message[100];
+    int key;
+
+    printf("Enter the encrypted message: ");
+    fgets(message, sizeof(message), stdin);
+    
+    printf("Enter the decryption key (0-25): ");
+    scanf("%d", &key);
+
+    if (key < 0 || key > 25) {
+        printf("Invalid key. Key should be in the range 0-25.\n");
+        return 1;
+    }
+
+    decryptCaesarCipher(message, key);
+
+    printf("Decrypted message: %s\n", message);
+
+    return 0;
+}
+output:
+ 
+2)Write a C program for monoalphabetic substitution cipher maps a plaintext alphabet to a ciphertext alphabet, so that each letter of the plaintext alphabet maps to a single unique letter of the ciphertext alphabet.
+program:
+#include<stdio.h>
+char monocipher_encr(char);
+char alpha[27][3] = { { 'a', 'f' }, { 'b', 'a' }, { 'c', 'g' }, { 'd', 'u' }, {
+        'e', 'n' }, { 'f', 'i' }, { 'g', 'j' }, { 'h', 'k' }, { 'i', 'l' }, {
+        'j', 'm' }, { 'k', 'o' }, { 'l', 'p' }, { 'm', 'q' }, { 'n', 'r' }, {
+        'o', 's' }, { 'p', 't' }, { 'q', 'v' }, { 'r', 'w' }, { 's', 'x' }, {
+        't', 'y' }, { 'u', 'z' }, { 'v', 'b' }, { 'w', 'c' }, { 'x', 'd' }, {
+        'y', 'e' }, { 'z', 'h' } };
+char str[20];
+int main() {
+    char str[20], str2[20];
+    int i;
+    printf("\n Enter String:");
+    gets(str);
+    for (i = 0; str[i]; i++) {
+        str2[i] = monocipher_encr(str[i]);
+    }
+    str2[i] = '\0';
+    printf("\nEncrypted Text: %s\n", str2);
+}
+char monocipher_encr(char a) {
+    int i;
+    for (i = 0; i < 27; i++) {
+        if (a == alpha[i][0])
+            break;
+    }
+    return alpha[i][1];
+}
+output:
+ 
+3) Write a C program for Playfair algorithm is based on the use of a 5 X 5 matrix of letters constructed using a keyword. Plaintext is encrypted two letters at a time using this matrix.
+program:
+#include <stdio.h>
+#include <string.h>
+
+#define SIZE 5
+
+char matrix[SIZE][SIZE];
+
+void generateMatrix(char* key) {
+    int i, j, k;
+    char alphabet[26] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    int used[26] = {0};
+
+    
+    int len = strlen(key);
+    for(i = 0, k = 0; i < SIZE; i++) {
+        for(j = 0; j < SIZE; j++) {
+            if(k < len) {
+                if(key[k] == 'J')
+                    key[k] = 'I';
+                if(!used[key[k] - 'A']) {
+                    matrix[i][j] = key[k];
+                    used[key[k] - 'A'] = 1;
+                    k++;
+                }
+            }
+        }
+    }
+
+    // Fill the remaining slots with the remaining alphabet letters
+    for(i = 0; i < SIZE; i++) {
+        for(j = 0; j < SIZE; j++) {
+            if(matrix[i][j] == 0) {
+                while(used[alphabet[k] - 'A']) {
+                    k++;
+                }
+                matrix[i][j] = alphabet[k];
+                used[alphabet[k] - 'A'] = 1;
+                k++;
+            }
+        }
+    }
+}
+
+void printMatrix() {
+    int i, j;
+    for(i = 0; i < SIZE; i++) {
+        for(j = 0; j < SIZE; j++) {
+            printf("%c ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void encrypt(char* plaintext) {
+    int i;
+    for(i = 0; i < strlen(plaintext); i += 2) {
+        char a = plaintext[i];
+        char b = (i + 1 < strlen(plaintext)) ? plaintext[i + 1] : 'X';
+
+        int rowA, colA, rowB, colB;
+        int j, k;
+        for(j = 0; j < SIZE; j++) {
+            for(k = 0; k < SIZE; k++) {
+                if(matrix[j][k] == a) {
+                    rowA = j;
+                    colA = k;
+                }
+                if(matrix[j][k] == b) {
+                    rowB = j;
+                    colB = k;
+                }
+            }
+        }
+
+        if(rowA == rowB) {
+            printf("%c%c ", matrix[rowA][(colA + 1) % SIZE], matrix[rowB][(colB + 1) % SIZE]);
+        } else if(colA == colB) {
+            printf("%c%c ", matrix[(rowA + 1) % SIZE][colA], matrix[(rowB + 1) % SIZE][colB]);
+        } else {
+            printf("%c%c ", matrix[rowA][colB], matrix[rowB][colA]);
+        }
+    }
+}
+
+int main() {
+    char key[100];
+    char plaintext[100];
+
+    printf("Enter the keyword (no spaces, all caps): ");
+    scanf("%s", key);
+
+    printf("Enter the plaintext (no spaces, all caps): ");
+    scanf("%s", plaintext);
+
+    generateMatrix(key);
+    printf("\nGenerated Matrix:\n");
+    printMatrix();
+
+    printf("\nEncrypted Text:\n");
+    encrypt(plaintext);
+
+    return 0;
+}
+output:
+ 
+4)Write a C program for polyalphabetic substitution cipher uses a separate monoalphabetic substitution cipher for each successive letter of plaintext, depending on a key.
+program:
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+void encryptPolyalphabetic(char message[], const char key[]) {
+    int key_len = strlen(key);
+    int i;
+    for ( i = 0; i < strlen(message); i++) {
+        if (isalpha(message[i])) {
+            char shift = tolower(key[i % key_len]) - 'a';
+
+            if (islower(message[i])) {
+                message[i] = ((message[i] - 'a' + shift) % 26) + 'a';
+            } else if (isupper(message[i])) {
+                message[i] = ((message[i] - 'A' + shift) % 26) + 'A';
+            }
+        }
+    }
+}
+
+int main() {
+    char message[100];
+    char key[100];
+
+    printf("Enter the message: ");
+    fgets(message, sizeof(message), stdin);
+
+    if (strlen(message) == 0) {
+        printf("Invalid message.\n");
+        return 1;
+    }
+
+    printf("Enter the key: ");
+    fgets(key, sizeof(key), stdin);
+
+    if (strlen(key) == 0) {
+        printf("Invalid key.\n");
+        return 1;
+    }
+    int key_len = strlen(key);
+    int index = 0;
+    int i;
+    for ( i = 0; i < key_len; i++) {
+        if (isalpha(key[i])) {
+            key[index] = toupper(key[i]);
+            index++;
+        }
+    }
+    key[index] = '\0';
+
+    encryptPolyalphabetic(message, key);
+
+    printf("Encrypted message: %s\n", message);
+
+    return 0;
+}
+output:
+ 
+5)Write a C program forgeneralization of the Caesar cipher, known as the affine Caesar cipher, has thefollowing form: For each plaintext letter p, substitute the   ciphertextletterC: C= E([a, b], p) = (ap + b) mod 26 A basic requirement of any encryption algorithm is that it be one-to-one. That is, if p q,then E(k, p) ,E(k, q). Otherwise, decryption is impossible, because more than one plaintext character maps into the same ciphertext character. The affine Caesar cipher is not one-to one for all values of a. For example, for a = 2 and b = 3,then E([a,b], 0) = E([a, b], 13) = 3.
+a.Are there any limitations on the value of b? b.Determine which values of a are not allowed.
+program:
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+int modInverse(int a, int m) {
+    a = a % m;
+    int x;
+    for (x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+            return x;
+        }
+    }
+    return -1; 
+}
+char encrypt(char ch, int a, int b) {
+    if (isalpha(ch)) {
+        char base = islower(ch) ? 'a' : 'A';
+        return ((a * (ch - base) + b) % 26) + base;
+    }
+    return ch;
+}
+char decrypt(char ch, int a, int b) {
+    if (isalpha(ch)) {
+        char base = islower(ch) ? 'a' : 'A';
+        int aInverse = modInverse(a, 26);
+        if (aInverse == -1) {
+            printf("The provided key 'a' is not valid for decryption.\n");
+            return ch;
+        }
+        return ((aInverse * (ch - base - b + 26) % 26) + base);
+    }
+    return ch;
+}
+
+int main() {
+    int a, b;
+    char plaintext[100]; 
+    char ciphertext[100]; 
+
+    printf("Enter the value of 'a' (must be relatively prime to 26): ");
+    scanf("%d", &a);
+
+    if (a % 2 == 0 || a % 13 == 0) {
+        printf("'a' must be relatively prime to 26 for decryption to work.\n");
+        return 1;
+    }
+
+    printf("Enter the value of 'b': ");
+    scanf("%d", &b);
+
+    printf("Enter the plaintext: ");
+    scanf(" %[^\n]s", plaintext);
+    
+    int i;
+    for (i = 0; plaintext[i] != '\0'; i++) {
+        ciphertext[i] = encrypt(plaintext[i], a, b);
+    }
+    ciphertext[i] = '\0'; 
+
+    printf("Encrypted text: %s\n", ciphertext);
+
+   
+    for (i = 0; ciphertext[i] != '\0'; i++) {
+        plaintext[i] = decrypt(ciphertext[i], a, b);
+    }
+    plaintext[i] = '\0'; 
+
+    printf("Decrypted text: %s\n", plaintext);
+
+    return 0;
+}
+output:
+ 
+6)Write a C program for cipher text has been generated with an affine cipher most frequent letter of the ciphertext is "B," and the second most frequent letter of the ciphertext is "U." Break this code.
+program:
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char ciphertext[] = "BUBUBUB"; // Replace with your ciphertext
+    char plaintext[strlen(ciphertext) + 1];
+
+    for (int a = 1; a < 26; a++) {
+        for (int b = 0; b < 26; b++) {
+            for (int i = 0; i < strlen(ciphertext); i++) {
+                if (ciphertext[i] >= 'A' && ciphertext[i] <= 'Z') {
+                    plaintext[i] = 'A' + (ciphertext[i] - 'A' - b + 26) % 26;
+                    plaintext[i] = 'A' + (a * (plaintext[i] - 'A') % 26);
+                } else {
+                    plaintext[i] = ciphertext[i];
+                }
+            }
+
+            plaintext[strlen(ciphertext)] = '\0';
+
+            // Check if "BU" is present in the plaintext
+            if (strstr(plaintext, "BU") != NULL) {
+                printf("Possible solution: a=%d, b=%d\n", a, b);
+                printf("Decrypted text: %s\n", plaintext);
+            }
+        }
+    }
+
+    return 0;
+}
+output:
+ 
+
